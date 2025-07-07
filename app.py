@@ -1,6 +1,4 @@
-# The data set used in this example is from http://archive.ics.uci.edu/ml/datasets/Wine+Quality
-# P. Cortez, A. Cerdeira, F. Almeida, T. Matos and J. Reis.
-# Modeling wine preferences by data mining from physicochemical properties. In Decision Support Systems, Elsevier, 47(4):547-553, 2009.
+# This code is copied pasted from mlflow wine dataset tutorial
 
 import logging
 import sys
@@ -32,22 +30,18 @@ if __name__ == "__main__":
     warnings.filterwarnings("ignore")
     np.random.seed(40)
 
-    # Read the wine-quality csv file from the URL
     csv_url = ("https://raw.githubusercontent.com/mlflow/mlflow/master/tests/datasets/winequality-red.csv")
     try:
         data = pd.read_csv(csv_url, sep=";")
     except Exception as e:
         logger.exception("Unable to download training & test CSV, check your internet connection. Error: %s", e)
 
-    # Split the data into training and test sets. (0.75, 0.25) split.
     train, test = train_test_split(data)
 
-    # The predicted column is "quality" which is a scalar from [3, 9]
     train_x = train.drop(["quality"], axis=1)
     test_x = test.drop(["quality"], axis=1)
     train_y = train[["quality"]]
     test_y = test[["quality"]]
-
 
     with mlflow.start_run():
         alpha = float(sys.argv[1]) if len(sys.argv) > 1 else 0.5 # argv: positional argument
@@ -82,10 +76,6 @@ if __name__ == "__main__":
 
         # Model registry does not work with file store
         if tracking_url_type_store != "file":
-            # Register the model
-            # There are other ways to use the Model Registry, which depends on the use case,
-            # please refer to the doc for more information:
-            # https://mlflow.org/docs/latest/model-registry.html#api-workflow
             mlflow.sklearn.log_model(lr, "model", registered_model_name="ElasticnetWineModel", signature=signature) # log_model: to select the best model
         else:
             mlflow.sklearn.log_model(lr, "model", signature=signature)
